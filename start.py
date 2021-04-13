@@ -263,4 +263,4 @@ def show_cluster(hover_data):
     except TypeError:
         pass
 
-app.run_server(debug=True)
+#app.run_server(debug=True)
