@@ -53,18 +53,18 @@ df['LEN_LINKED_CASES'] = len_linked_cases
 #adding additional data to the datafram to be displayed in the network graph
 dates = []
 unique_dates = []
+
 size = []
 for i in range(len(df)):
     dates.append(df['REPORT_DATE.MONTH'][i] + ' ' + str(df['REPORT_DATE.DAY'][i]))
-    if df['EXPOSURE'][i] == 'IMPORTED' and df['LEN_LINKED_CASES'][i] > 0:
+    if (df['EXPOSURE'][i] == 'IMPORTED'or df['EXPOSURE'][i] == 'IMPORT') and df['LEN_LINKED_CASES'][i] > 0:
         size.append(0.5)
     else:
         size.append(0.1)
 
-    
-
-df['DATE'] = dates
 df['SIZE'] = size
+df['DATE'] = dates
+
 
 for i in range(len(df)):
     if dates[i] not in unique_dates:
@@ -76,19 +76,19 @@ df['UNIQUE_DATE'] = unique_dates
 #creating the tree-like graph layout for the nodes
 y_positions = []
 for i in range(len(df)):
-    if df['LOCATION'][i] in cluster_names and df['EXPOSURE'][i] == 'IMPORTED':
+    if df['LOCATION'][i] in cluster_names and (df['EXPOSURE'][i] == 'IMPORTED' or df['EXPOSURE'][i] == 'IMPORT'):
         y_positions.append(60)
     elif df['LOCATION'][i] in cluster_names and df['EXPOSURE'][i] == 'LOCAL':
         y_positions.append(50) 
-    elif df['LINKED_CASES'][i] != [] and df['EXPOSURE'][i] == 'IMPORTED':
+    elif df['LINKED_CASES'][i] != [] and (df['EXPOSURE'][i] == 'IMPORTED' or df['EXPOSURE'][i] == 'IMPORT'):
         y_positions.append(40)
     elif df['LINKED_CASES'][i] != [] and df['EXPOSURE'][i] == 'LOCAL':
         y_positions.append(30)
     elif df['LINKED_CASES'][i] == [] and df['EXPOSURE'][i] == 'LOCAL':
         y_positions.append(20)
-    elif df['LINKED_CASES'][i] == [] and df['EXPOSURE'][i] == 'IMPORTED':
+    elif df['LINKED_CASES'][i] == [] and (df['EXPOSURE'][i] == 'IMPORTED' or df['EXPOSURE'][i] == 'IMPORT'):
         y_positions.append(10)
-    elif df['EXPOSURE'][i] == '' and df['LOCATION'][i] == '':
+    elif df['LOCATION'][i] == '':
         y_positions.append(0)
     else:
         y_positions.append(10)
@@ -113,8 +113,8 @@ fig.update_layout(
 
 app.layout = html.Div([
     html.H1('Singapore Data Visualization'),
-    html.P(
-        'Graph indicating unique cases and their respective connections throughout the begining months of the COVID-19 pandemic in 2020.'),
+    html.P('Graph indicating unique cases and their respective connections throughout the begining months of the COVID-19 pandemic in 2020.'),
+    html.P('Nodes that are larger in size are IMPORTED cases with connections, while smaller nodes are LOCAL cases.'),
     dcc.Graph(id='main-graph'),
     html.P('Selected Date(s)'),
     dcc.RangeSlider(
@@ -149,7 +149,9 @@ def update_graph(slider_range):
     #adding the 'nodes' of the graph
     fig = px.scatter(
         dff[mask], x='CASE_ID', y='Y_POSITIONS', custom_data=['CASE_ID', 'LINKED_CASES', 'EXPOSURE', 'LOCATION', 'DATE'],
-        color='LOCATION', size='SIZE', height=500, width=1500,
+        color='LOCATION', 
+        size='SIZE', 
+        height=500, width=1500,
         hover_data=['LINKED_CASES'])
     fig.update_layout(
         xaxis=dict(
@@ -170,7 +172,7 @@ def update_graph(slider_range):
             title='',
             tickmode='array',
             tickvals=[0, 10, 20, 30, 40, 50, 60],
-            ticktext=['OTHER', 'IMPORTED', 'LOCAL', 'LOCAL W/ CONNECTIONS', 'IMPORTED W/ CONNECTIONS', 'LOCAL IN CLUSTER', 'IMPORTED IN CLUSTER'],
+            ticktext=['LOCATIONLESS', 'IMPORTED', 'LOCAL', 'LOCAL W/ CONNECTIONS', 'IMPORTED W/ CONNECTIONS', 'LOCAL PART OF CLUSTER', 'IMPORTED ORIGINATOR OF CLUSTER'],
             showgrid=True,
             gridcolor='lightgray',
             gridwidth=1,
