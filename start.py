@@ -81,7 +81,7 @@ for i in range(len(df)):
     elif df['LOCATION'][i] in cluster_names and df['EXPOSURE'][i] == 'LOCAL':
         y_positions.append(50) 
     elif df['LINKED_CASES'][i] != [] and (df['EXPOSURE'][i] == 'IMPORTED' or df['EXPOSURE'][i] == 'IMPORT'):
-        y_positions.append(40)
+        y_positions.append(random.randint(37, 43))
     elif df['LINKED_CASES'][i] != [] and df['EXPOSURE'][i] == 'LOCAL':
         y_positions.append(30)
     elif df['LINKED_CASES'][i] == [] and df['EXPOSURE'][i] == 'LOCAL':
